@@ -1,20 +1,18 @@
-import React, { useEffect, useMemo, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
-import { loadFull } from "tsparticles";
 import axios from "axios";
+import React, { useEffect, useMemo, useState } from "react";
+import { loadFull } from "tsparticles";
 import WeatherCard from "./WeatherCard";
 
-const Header = () => {
+const Header = ({ coords }) => {
     const [init, setInit] = useState(false);
-    const [weatherCondition, setWeatherCondition] = useState();
-    const [weatherData, setWeatherData] = useState(null);
-    const [coords, setCoords] = useState({ lat: 50.6720144, lon: 4.6158388 });
-    const [options, setOptions] = useState({
+    const [particlesOptions, setParticlesOptions] = useState({
         particles: {},
         background: "#fff",
     });
+    const [weatherData, setWeatherData] = useState(null);
+    const [weatherCondition, setWeatherCondition] = useState();
 
-    // Particles options
     const particlesType = {
         rainParticlesOptions: {
             particles: useMemo(
@@ -144,29 +142,20 @@ const Header = () => {
         },
     };
 
-    // Get user position
-    useEffect(() => {
-        const getPosition = (pos) => {
-            setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
-        };
+    const getParticlesById = (id) => {
+        const firstNum = parseInt(id.toString()[0], 10);
 
-        const showPositionError = (err) => {
-            console.log("ERR: Getting current position =>", err);
-        };
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                getPosition,
-                showPositionError
-            );
+        if (firstNum === 2 || firstNum === 3 || firstNum === 5) {
+            setWeatherCondition("rain");
+        } else if (firstNum === 6) {
+            setWeatherCondition("snow");
+        } else if (firstNum === 8) {
+            setWeatherCondition("sun");
         } else {
-            alert(
-                "La géolocalisation n'est pas supportée par ce navigateur, une ville par défaut a été séléctionnée."
-            );
+            setWeatherCondition("sun");
         }
-    }, []);
+    };
 
-    // Request current weather data and load particles
     useEffect(() => {
         axios
             .get(
@@ -177,61 +166,68 @@ const Header = () => {
                 }`
             )
             .then((res) => {
-                setWeatherData(res.data);
+                const data = {
+                    city: {
+                        name: res.data.name,
+                    },
+                    temp: {
+                        current: res.data.main.temp.toFixed(1) + "°C",
+                        max: res.data.main.temp_max.toFixed(1) + "°C",
+                        min: res.data.main.temp_min.toFixed(1) + "°C",
+                        feels_like: res.data.main.feels_like.toFixed(1) + "°C",
+                    },
+                    main: {
+                        humidity: res.data.main.humidity + "%",
+                        cloudiness: res.data.clouds.all + "%",
+                        description:
+                            res.data.weather[0].description[0].toUpperCase() +
+                            res.data.weather[0].description.slice(1),
+                    },
+                    wind: {
+                        speed: res.data.wind.speed + "m/s",
+                    },
+                };
+                setWeatherData(data);
 
-                const weatherConditionId = res.data.weather[0].id;
-                const firstNum = parseInt(weatherConditionId.toString()[0], 10);
+                const weatherId = res.data.weather[0].id;
 
-                if (firstNum === 2 || firstNum === 3 || firstNum === 5) {
-                    setWeatherCondition("rain");
-                } else if (firstNum === 6) {
-                    setWeatherCondition("snow");
-                } else if (firstNum === 8) {
-                    setWeatherCondition("sun");
-                } else {
-                    setWeatherCondition("sun");
-                }
+                getParticlesById(weatherId);
 
-                const newOptions =
-                    particlesType[`${weatherCondition}ParticlesOptions`] ||
-                    particlesType.sunParticlesOptions;
-                setOptions(newOptions);
+                const options =
+                    particlesType[`${weatherCondition}ParticlesOptions`];
+                setParticlesOptions(options);
 
-                // Loading particles
                 initParticlesEngine(async (engine) => {
                     await loadFull(engine);
-                }).then(() => {
-                    setInit(true);
-                });
-            })
-            .catch((err) => {
-                console.log("ERR: Fetching current weather data =>", err);
+                })
+                    .then(() => setInit(true))
+                    .catch((err) => {
+                        console.log("ERR: Fetch current weather data =>", err);
+                    });
             });
     }, [coords, weatherCondition]);
 
-    const particlesLoaded = (container) => {
-        console.log("Particles are now loaded =>", container);
-    };
-
-    // Return HTML
     if (init) {
         return (
-            <header style={{ backgroundColor: options.background }}>
+            <header
+                id="header"
+                style={{
+                    backgroundColor:
+                        particlesOptions && particlesOptions.background,
+                }}
+            >
                 {weatherData !== null ? (
-                    <WeatherCard weatherData={weatherData} />
+                    <WeatherCard weather={weatherData} />
                 ) : (
-                    <p>Chargement des données...</p>
+                    <p>Chargement des données</p>
                 )}
                 <Particles
                     id="tsparticles"
-                    // particlesLoaded={particlesLoaded}
-                    options={options.particles}
+                    options={particlesOptions && particlesOptions.particles}
                 />
             </header>
         );
     }
-
-    return <></>;
 };
 
 export default Header;
