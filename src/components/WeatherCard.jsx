@@ -6,7 +6,7 @@ const WeatherCard = ({ weather }) => {
             <div className="card-content">
                 <h2>{weather.city.name}</h2>
                 <p id="currentTemp">{weather.temp.current}</p>
-                <p>
+                <p className="min-max">
                     {weather.main.description} {weather.temp.max} /{" "}
                     {weather.temp.min}
                 </p>

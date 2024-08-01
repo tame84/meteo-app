@@ -98,7 +98,7 @@ const Header = ({ coords }) => {
                 }),
                 []
             ),
-            background: "#DCE4F0",
+            background: "#1d1d1d",
         },
         sunParticlesOptions: {
             particles: useMemo(
@@ -171,7 +171,7 @@ const Header = ({ coords }) => {
                         name: res.data.name,
                     },
                     temp: {
-                        current: res.data.main.temp.toFixed(1) + "°C",
+                        current: res.data.main.temp.toFixed(1),
                         max: res.data.main.temp_max.toFixed(1) + "°C",
                         min: res.data.main.temp_min.toFixed(1) + "°C",
                         feels_like: res.data.main.feels_like.toFixed(1) + "°C",
