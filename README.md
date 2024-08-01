@@ -1,8 +1,27 @@
-# React + Vite
+# Meteo App ⛅
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Search the meteo of a city of your choice
 
-Currently, two official plugins are available:
+## Use
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+View the current meteo of your city of residence (with geolocation), search the meteo for the city you want and view a forecast of the next 5 days.
+
+The available film information are :
+- City
+- Current/max/min/feels temp, current humidity/wind speed/cloudiness
+- 5 days forecast (humidity, min/max temp, cloudiness, risk of rain, humidity)
+
+## Feature
+
+You can add the films you like to your favorites list.
+
+## Languages
+
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://github.com/tame84)
+[![SASS](https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=sass&logoColor=white)](https://github.com/tame84)
+
+## API
+
+### https://api.openweathermap.org
+- */data/2.5/weather*
+- */data/2.5/forecast*
